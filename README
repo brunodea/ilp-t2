@@ -1,0 +1,20 @@
+Trabalho 2 de Implementação de Linguagens de Programação.
+
+Criação registos de ativação das unidades a partir da
+seguinte linguagem de programação:
+
+P       -> 'program' Id ListaD 'main (' ListaP ')' ListaD 'begin' ListaC ' end.'
+Id      -> letra (letra | digitos)*
+Num     -> digito (digito)*
+ListaP  -> Id ':' TipoS ';' ListaP
+ListaP  -> ε
+ListaD  -> Id ':' Tipo ';' ListaD | 'unit' Id '(' ListaP '):' TipoS
+ListaD  -> ε
+TipoS   -> int | float | char | boolean | void | * TipoS
+Tipo    -> int | float | char | boolean | void | * Tipo | array [Num] | Seq | exception //não tenho certeza dessa parte
+Seq     -> [Num] Seq | of Tipo
+ListaC  -> ε
+ListaC  -> raise Id ; ListaC
+ListaC  -> handle Id => ListaC ; ListaC
+ListaC  -> 'if' Exp 'then' ListaC 'else' ListaC 'end;' ListaC
+ListaC  -> ... demais comandos
