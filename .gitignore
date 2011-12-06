@@ -4,3 +4,6 @@
 /*.opensdf
 /*.suo
 /*.user
+/Debug
+/Release
+/ipch
