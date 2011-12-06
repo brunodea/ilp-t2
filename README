@@ -4,15 +4,20 @@ Criação registos de ativação das unidades a partir da
 seguinte linguagem de programação:
 
 P       -> 'program' Id ListaD 'main (' ListaP ')' ListaD 'begin' ListaC ' end.'
+
 Id      -> letra (letra | digitos)*
-Num     -> digito (digito)*
+Num     -> digito+
+
 ListaP  -> Id ':' TipoS ';' ListaP
 ListaP  -> ε
+
 ListaD  -> Id ':' Tipo ';' ListaD | 'unit' Id '(' ListaP '):' TipoS
 ListaD  -> ε
+
 TipoS   -> int | float | char | boolean | void | * TipoS
 Tipo    -> int | float | char | boolean | void | * Tipo | array [Num] Seq | exception
 Seq     -> [Num] Seq | of Tipo
+
 ListaC  -> ε
 ListaC  -> raise Id ; ListaC
 ListaC  -> handle Id => ListaC ; ListaC
