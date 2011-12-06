@@ -11,7 +11,7 @@ ListaP  -> ε
 ListaD  -> Id ':' Tipo ';' ListaD | 'unit' Id '(' ListaP '):' TipoS
 ListaD  -> ε
 TipoS   -> int | float | char | boolean | void | * TipoS
-Tipo    -> int | float | char | boolean | void | * Tipo | array [Num] | Seq | exception //não tenho certeza dessa parte
+Tipo    -> int | float | char | boolean | void | * Tipo | array [Num] Seq | exception
 Seq     -> [Num] Seq | of Tipo
 ListaC  -> ε
 ListaC  -> raise Id ; ListaC
