@@ -13,6 +13,10 @@
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\interface.hpp" />
+    <ClInclude Include="src\StackFrame.hpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8AD530DE-E668-4FFA-A83A-7E857BC3D90A}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
