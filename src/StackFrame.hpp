@@ -32,6 +32,14 @@ typedef struct ExceptionEntry
         m_LabelID = i;
         m_HandlerBasePtr = h;
     }
+
+    ExceptionEntry(std::string i, int h, Handler hl)
+    {
+        m_LabelID = i;
+        m_HandlerBasePtr = h;
+        m_Handler = hl;
+    }
+
 } ExceptionEntry;
 
 struct StackFrame {
