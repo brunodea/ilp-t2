@@ -1,4 +1,4 @@
-Trabalho 2 de Implementação de Linguagens de Programação.
+﻿Trabalho 2 de Implementação de Linguagens de Programação.
 
 Criação registos de ativação das unidades a partir da
 seguinte linguagem de programação:
@@ -26,3 +26,4 @@ ListaC  -> 'raise' Id ';' ListaC
 ListaC  -> 'handle' Id '=>' ListaC ';' ListaC
 ListaC  -> 'if' Exp 'then' ListaC 'else' ListaC 'end' ';' ListaC
 ListaC  -> ... demais comandos
+
