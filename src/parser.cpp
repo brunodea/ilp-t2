@@ -1,8 +1,10 @@
 #include "parser.hpp"
 
 #include <boost/spirit/include/qi.hpp>
+#include <boost/spirit/include/support_istream_iterator.hpp>
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -61,12 +63,12 @@ struct Grammar {
     RULE(unsigned int(), num);
     RULE(Types(), tipo_s); // TODO descobrir que tipo é esse
     // TODO Especificar tipos para todos esses outros
-    RULE_NT(tipo);
-    RULE_NT(seq);
-    RULE_NT(lista_p);
-    RULE_NT(lista_d);
-    RULE_NT(lista_c);
-    RULE_NT(p);
+    RULE(std::string(), tipo);
+    RULE(std::string(), seq);
+    RULE(std::string(), lista_p);
+    RULE(std::string(), lista_d);
+    RULE(std::string(), lista_c);
+    RULE(std::string(), p);
 #undef RULE
 #undef RULE_NT
 };
@@ -78,16 +80,28 @@ void testf() {
 }
 
 void test_parse() {
-    std::string line;
-    std::getline(std::cin, line);
+    //std::string line;
+    //std::getline(std::cin, line);
 
-    std::string val;
+    //std::string val;
 
-    auto b = std::begin(line);
-    auto e = std::end(line);
+    //auto b = std::begin(line);
+    //auto e = std::end(line);
   
-    bool r = qi::phrase_parse(b, e, grammar.id[&testf], qi::space, val);
-    std::cout << val << std::endl;
+    //bool r = qi::phrase_parse(b, e, grammar.id[&testf], qi::space, val);
+    //std::cout << val << std::endl;
+}
+
+void parse_file(const std::string &filename) {
+    //namespace spirit = boost::spirit;
+
+    //std::ifstream in(filename.c_str());
+
+    //
+    //spirit::istream_iterator begin(in);
+    //spirit::istream_iterator end;
+
+    //spirit::qi::parse(begin, end,grammar.);
 }
 
 }
