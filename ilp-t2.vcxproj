@@ -67,6 +67,7 @@
     <ClInclude Include="src\StackFrame.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\interface.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\parser.cpp" />
   </ItemGroup>
