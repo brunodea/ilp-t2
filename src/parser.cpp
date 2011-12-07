@@ -87,4 +87,8 @@ void test_parse() {
     std::cout << val << std::endl;
 }
 
+void parse(std::istream& in) {
+
+}
+
 }
