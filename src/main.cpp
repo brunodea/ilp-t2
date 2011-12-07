@@ -11,8 +11,12 @@ int main()
 
     testedocaralho.data.push_back(Entry(ENTRY_VARIABLES,1,"short var1"));
     testedocaralho.data.push_back(Entry(ENTRY_VARIABLES,4,"int var2"));
-    testedocaralho.dataE.push_back(ExceptionEntry("exception1",32));
-    testedocaralho.dataE.push_back(ExceptionEntry("exception2",56400));
+    Handler a;
+    a.m_ReturnAddress = 10;
+    a.m_CallersBasePtr = 20;
+    a.m_Locals.push_back(Entry(ENTRY_PARAMETER,1,"short Eita"));
+    a.m_Locals.push_back(Entry(ENTRY_PARAMETER,4,"int Eita2"));
+    testedocaralho.dataE.push_back(ExceptionEntry("exception2",56400,a));
     printTable(testedocaralho);
     getchar();
 
