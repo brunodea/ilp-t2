@@ -12,6 +12,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\parser.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\parser.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8AD530DE-E668-4FFA-A83A-7E857BC3D90A}</ProjectGuid>
