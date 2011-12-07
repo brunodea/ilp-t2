@@ -56,6 +56,19 @@ std::string printNome(std::string s) // até 21 caracteres da pra imprimir
     return s;
 }
 
+void calculaPadding(int *enderecoAtual, int val)
+{
+    if(*enderecoAtual % val != 0)
+    {
+            int iPadding = 4 - *enderecoAtual % val;
+            std::cout << printHexa(*enderecoAtual)
+                <<" |   --- padding ---   |" 
+                << printHexa(iPadding)
+                << "|" << std::endl;
+            *enderecoAtual += iPadding;
+     }
+}
+
 void imprimeExceptions(std::vector<ExceptionEntry> dE, int* e)
 {
     for(int j = 0 ; j < (int)dE.size() ; j++)
@@ -73,6 +86,8 @@ void imprimeExceptions(std::vector<ExceptionEntry> dE, int* e)
     }
 }
 
+
+
 void printTable(StackFrame sFrame) 
 {
     int enderecoAtual = 0;
@@ -82,15 +97,9 @@ void printTable(StackFrame sFrame)
         if(std::get<0> (sFrame.data[i]) == ENTRY_PARAMETER)
         {
             int sizeDoItem = (int)std::get<1> (sFrame.data[i]);
-            if(enderecoAtual % sizeDoItem != 0)
-            {
-                int iPadding = 4 - enderecoAtual % sizeDoItem;
-                std::cout << printHexa(enderecoAtual)
-                    <<" |   --- padding ---   |" 
-                    << printHexa(iPadding)
-                    << "|" << std::endl;
-                enderecoAtual += iPadding;
-            }
+
+            calculaPadding(&enderecoAtual,sizeDoItem);
+
             std::cout << printHexa(enderecoAtual) << " |"
                 << printNome(std::get<2> (sFrame.data[i]))
                 << "|" << printHexa(sizeDoItem)
@@ -98,6 +107,8 @@ void printTable(StackFrame sFrame)
             enderecoAtual += sizeDoItem;
         }
     }
+
+    calculaPadding(&enderecoAtual,4);
     std::cout <<"      +---------------------+-----+ excecoes" << std::endl;//IMPRIMIR AS EXCEÇÕES
 
     imprimeExceptions(sFrame.dataE, &enderecoAtual);
@@ -140,15 +151,9 @@ void printTable(StackFrame sFrame)
         if(std::get<0> (sFrame.data[i]) == ENTRY_VARIABLES)
         {
             int sizeDoItem = (int)std::get<1> (sFrame.data[i]);
-            if(enderecoAtual % sizeDoItem != 0)
-            {
-                int iPadding = 4 - enderecoAtual % sizeDoItem;
-                std::cout << printHexa(enderecoAtual)
-                    <<" |   --- padding ---   |" 
-                    << printHexa(iPadding)
-                    << "|" << std::endl;
-                enderecoAtual += iPadding;
-            }
+
+            calculaPadding(&enderecoAtual,sizeDoItem);
+
             std::cout << printHexa(enderecoAtual) << " |"
                 << printNome(std::get<2> (sFrame.data[i]))
                 << "|" << printHexa(sizeDoItem)
@@ -156,6 +161,8 @@ void printTable(StackFrame sFrame)
             enderecoAtual += sizeDoItem;
         }
     }
+    calculaPadding(&enderecoAtual,4);
+
     std::cout << printHexa(enderecoAtual) 
         << " +---------------------+-----+ estrutura do handler da excecao" << std::endl;
 
@@ -163,15 +170,6 @@ void printTable(StackFrame sFrame)
     {
         Handler hl = sFrame.dataE[i].m_Handler;
         std::cout << "      +" << printNome(sFrame.dataE[i].m_LabelID)<<"+-----+"<< std::endl;
-        if(enderecoAtual % 4 != 0)
-        {
-            int iPadding = 4 - enderecoAtual % 4;
-            std::cout << printHexa(enderecoAtual)
-                <<" |   --- padding ---   |" 
-                << printHexa(iPadding)
-                << "|" << std::endl;
-            enderecoAtual += iPadding;
-        }
         std::cout << "      +return address-------+-----+"<< std::endl;
         std::cout << printHexa(enderecoAtual) << " |"
             << printNome(printNome(printHexa(sFrame.dataE[i].m_Handler.m_ReturnAddress)))
@@ -188,24 +186,16 @@ void printTable(StackFrame sFrame)
         for(int j = 0 ; j < (int)sFrame.dataE[i].m_Handler.m_Locals.size() ; j ++)
         {
             int sizeDoItem = (int)std::get<1> (sFrame.dataE[i].m_Handler.m_Locals[j]);
-            if(enderecoAtual % sizeDoItem != 0)
-            {
-                int iPadding = 4 - enderecoAtual % sizeDoItem;
-                std::cout << printHexa(enderecoAtual)
-                    <<" |   --- padding ---   |" 
-                    << printHexa(iPadding)
-                    << "|" << std::endl;
-                enderecoAtual += iPadding;
-            }
+
+            calculaPadding(&enderecoAtual,sizeDoItem);
+
             std::cout << printHexa(enderecoAtual) << " |"
                 << printNome(std::get<2> (sFrame.dataE[i].m_Handler.m_Locals[j]))
                 << "|" << printHexa(sizeDoItem)
                 << "|"<< std::endl;
             enderecoAtual += sizeDoItem;
         }
-
-
-
+        calculaPadding(&enderecoAtual,4);
     }
     std::cout << printHexa(enderecoAtual) 
         << " +---------------------+-----+" << std::endl;
