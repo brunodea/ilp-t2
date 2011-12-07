@@ -12,6 +12,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\parser.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\parser.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\StackFrame.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\interface.hpp" />

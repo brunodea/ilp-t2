@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include "interface.hpp"
 #include "StackFrame.hpp"
 
@@ -11,5 +12,12 @@ int main()
     testedocaralho.data.push_back(Entry(ENTRY_VARIABLES,4,"int var2"));
     printTable(testedocaralho);
     getchar();
+=======
+#include "parser.hpp"
+
+int main()
+{
+    parse::test_parse();
+>>>>>>> a7b072536f8248aa56ef2512de7a7c44973878ad
     return 0;
 }
