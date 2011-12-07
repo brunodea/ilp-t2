@@ -73,6 +73,10 @@ struct Grammar {
 
 Grammar grammar;
 
+void testf() {
+    std::cout << "foo";
+}
+
 void test_parse() {
     std::string line;
     std::getline(std::cin, line);
@@ -81,14 +85,9 @@ void test_parse() {
 
     auto b = std::begin(line);
     auto e = std::end(line);
-
-    bool r = qi::phrase_parse(b, e, grammar.id, qi::space, val);
-
+  
+    bool r = qi::phrase_parse(b, e, grammar.id[&testf], qi::space, val);
     std::cout << val << std::endl;
-}
-
-void parse(std::istream& in) {
-
 }
 
 }
