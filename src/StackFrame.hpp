@@ -5,13 +5,8 @@
 #include <utility>
 
 struct StackFrame {
-    //elo estatico
-    //elo dinamico
-    //area de dados locais
-    //tabela de tratadores
-    //retorno
-    //area de temporarios
-    //area de salvamento de contexto
+    //parametros, elo estatico, end. retorno, elo dinamico, contexto salvo,
+    //temporarios, variaveis
 
     typedef std::pair<size_t, std::string>  EntryType;
     
