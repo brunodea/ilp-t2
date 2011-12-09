@@ -170,19 +170,24 @@ void printTable(StackFrame sFrame)
     {
         Handler hl = sFrame.dataE[i].m_Handler;
         std::cout << "      +" << printNome(sFrame.dataE[i].m_LabelID)<<"+-----+"<< std::endl;
-        std::cout << "      +return address-------+-----+"<< std::endl;
+        //std::cout << "      +return address-------+-----+"<< std::endl;
+        std::cout << "      +---------------------+-----+"<< std::endl;
         std::cout << printHexa(enderecoAtual) << " |"
-            << printNome(printNome(printHexa(sFrame.dataE[i].m_Handler.m_ReturnAddress)))
+            //<< printNome(printHexa(sFrame.dataE[i].m_Handler.m_ReturnAddress))
+            << printNome("return address")
             << "|" << printHexa(4)
             << "|"<< std::endl;
         enderecoAtual += 4;
-        std::cout << "      +Caller's EBP---------+-----+"<< std::endl;
+        //std::cout << "      +Caller's EBP---------+-----+"<< std::endl;
+        std::cout << "      +---------------------+-----+"<< std::endl;
         std::cout << printHexa(enderecoAtual) << " |"
-            << printNome(printNome(printHexa(sFrame.dataE[i].m_Handler.m_CallersBasePtr)))
+            //<< printNome(printHexa(sFrame.dataE[i].m_Handler.m_CallersBasePtr))
+            << printNome("Caller's EBP")
             << "|" << printHexa(4)
             << "|"<< std::endl;
         enderecoAtual += 4;
-        std::cout << "      +LocalVariableHandler-+-----+"<< std::endl;
+        //std::cout << "      +LocalVariableHandler-+-----+"<< std::endl;
+        std::cout << "      +---------------------+-----+"<< std::endl;
         for(int j = 0 ; j < (int)sFrame.dataE[i].m_Handler.m_Locals.size() ; j ++)
         {
             int sizeDoItem = (int)std::get<1> (sFrame.dataE[i].m_Handler.m_Locals[j]);
