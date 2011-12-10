@@ -17,17 +17,19 @@ enum TypeEnum {
     T_FLOAT,
     T_CHAR,
     T_BOOLEAN,
-    T_VOID
+    T_VOID,
+    T_EXCEPTION
 };
 
 struct TypesTable : qi::symbols<char, TypeEnum> {
     TypesTable()
     {
-        add("int",     T_INT)
-           ("float",   T_FLOAT)
-           ("char",    T_CHAR)
-           ("boolean", T_BOOLEAN)
-           ("void",    T_VOID);
+        add("int",       T_INT)
+           ("float",     T_FLOAT)
+           ("char",      T_CHAR)
+           ("boolean",   T_BOOLEAN)
+           ("void",      T_VOID)
+           ("exception", T_EXCEPTION);
     }
 } types_table;
 
@@ -41,7 +43,7 @@ struct PascalGrammar : qi::grammar<Iterator, qi::space_type, std::string()> {
         num = qi::uint_;
         tipo_s = *qi::lit('*') >> types_table;
 
-        tipo = types_table | ('*' >> tipo) | ("array" >> seq) | "exception";
+        tipo = types_table | ('*' >> tipo) | ("array" >> seq);
         seq = +('[' >> num >> ']') >> "of" >> tipo;
 
         // parameter list
@@ -54,9 +56,10 @@ struct PascalGrammar : qi::grammar<Iterator, qi::space_type, std::string()> {
         //Rule Lixo = *AnyToken;
         //Rule Bloco = Lixo >> -("begin" >> Lixo >> "end") >> Lixo;
 
-        lista_c = *qi::lexeme[+qi::print] - "end.";
+        // TODO exception blocks
+        lista_c = *(("begin" >> lista_c >> "end") | (qi::lexeme[+qi::print] - "end"));
 
-        p = "program" >> id >> lista_d >> "main" >> '(' >> lista_p >> ')' >> lista_d >> "begin" >> lista_c >> "end.";
+        p = "program" >> id >> lista_d >> "main" >> '(' >> lista_p >> ')' >> lista_d >> "begin" >> lista_c >> "end" >> qi::lit('.');
     }
 
 #define RULE(type, name) qi::rule<Iterator, Skip, type> name
