@@ -5,21 +5,10 @@
 
 #include <iostream>
 #include <fstream>
-#include <string>
-#include <vector>
 
 namespace parse {
 
 namespace qi = boost::spirit::qi;
-
-enum TypeEnum {
-    T_INT,
-    T_FLOAT,
-    T_CHAR,
-    T_BOOLEAN,
-    T_VOID,
-    T_EXCEPTION
-};
 
 struct TypesTable : qi::symbols<char, TypeEnum> {
     TypesTable()
