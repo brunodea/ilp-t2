@@ -34,6 +34,14 @@ struct Type {
     std::unique_ptr<Type> sub_type;
 };
 
+struct VariableDecl;
+struct ProcedureDecl;
+
+struct DeclList {
+    std::vector<ProcedureDecl> procedures;
+    std::vector<VariableDecl> variables;
+};
+
 struct VariableDecl {
     std::string id;
     Type type;
@@ -43,15 +51,13 @@ struct ProcedureDecl {
     std::string id;
     std::vector<Param> param_list;
     SType return_type;
-    std::vector<ProcedureDecl> procedure_decls;
-    std::vector<VariableDecl> variable_decls;
+    DeclList declarations;
     // TODO? command list
 };
 
 struct Program {
     std::string id;
-    std::vector<ProcedureDecl> procedure_decls;
-    std::vector<VariableDecl> variable_decls;
+    DeclList declarations;
     ProcedureDecl main_decl;
 };
 
