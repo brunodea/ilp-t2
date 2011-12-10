@@ -44,9 +44,11 @@ struct PascalGrammar : qi::grammar<Iterator, qi::space_type, std::string()> {
         tipo = types_table | ('*' >> tipo) | ("array" >> seq) | "exception";
         seq = +('[' >> num >> ']') >> "of" >> tipo;
 
+        // parameter list
         lista_p = *(id >> ':' >> tipo_s >> ';');
 
-        lista_d = -((id >> ':' >> tipo >> ';' >> lista_d) | ("procedure" >> id >> '(' >> lista_p >> ')' >> ':' >> tipo_s));
+        // declaration list
+        lista_d = *((id >> ':' >> tipo >> ';') | ("procedure" >> id >> '(' >> lista_p >> ')' >> ':' >> tipo_s >> lista_d >> "begin" >> lista_c >> "end" >> ';'));
 
         //Rule AnyToken = lexeme[+qi::print] - (qi::lit("begin") | "end");
         //Rule Lixo = *AnyToken;

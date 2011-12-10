@@ -15,7 +15,7 @@ Num     -> digito+
 
 ListaP  -> (Id ':' TipoS ';')*
 
-ListaD  -> (Id ':' Tipo ';' ListaD | 'procedure' Id '(' ListaP ')' ':' TipoS)?
+ListaD  -> (Id ':' Tipo ';' | 'procedure' Id '(' ListaP ')' ':' TipoS ListaD 'begin' ListaC 'end' ';')*
 
 TipoS   -> ('*')* ('int' | 'float' | 'char' | 'boolean' | 'void')
 Tipo    -> 'int' | 'float' | 'char' | 'boolean' | 'void' | '*' Tipo | 'array' Seq | 'exception'
