@@ -4,6 +4,8 @@
 #include <vector>
 #include <memory>
 #include <iosfwd>
+#include <boost/variant.hpp>
+#include <boost/variant/recursive_wrapper.hpp>
 
 namespace parse {
 
@@ -28,10 +30,12 @@ struct Param {
 };
 
 struct Type {
-    TypeEnum basic_type;
     std::vector<int> array_dimensions;
     bool is_pointer;
-    std::unique_ptr<Type> sub_type;
+    boost::variant<
+        TypeEnum,
+        boost::recursive_wrapper<Type>
+    > type;
 };
 
 struct VariableDecl;
@@ -58,7 +62,10 @@ struct ProcedureDecl {
 struct Program {
     std::string id;
     DeclList declarations;
-    ProcedureDecl main_decl;
+
+    std::vector<Param> main_params;
+    DeclList main_decls;
+    // TODO? command list
 };
 
 void test_parse();

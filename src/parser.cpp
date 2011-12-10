@@ -4,9 +4,41 @@
 #include <boost/spirit/include/support_istream_iterator.hpp>
 #include <boost/spirit/include/phoenix_bind.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
+#include <boost/spirit/include/phoenix_container.hpp>
+#include <boost/spirit/include/phoenix_object.hpp>
+#include <boost/fusion/include/adapt_struct.hpp>
 
 #include <iostream>
 #include <fstream>
+#include <cstdlib>
+
+BOOST_FUSION_ADAPT_STRUCT(
+    parse::Param,
+    (std::string, name)
+    (parse::SType, type)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    parse::VariableDecl,
+    (std::string, id)
+    (parse::Type, type)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    parse::ProcedureDecl,
+    (std::string, id)
+    (std::vector<parse::Param>, param_list)
+    (parse::SType, return_type)
+    (parse::DeclList, declarations)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    parse::Program,
+    (std::string, id)
+    (parse::DeclList, declarations)
+    (std::vector<parse::Param>, main_params)
+    (parse::DeclList, main_decls)
+)
 
 namespace parse {
 
@@ -36,32 +68,59 @@ struct PascalGrammar : qi::grammar<Iterator, qi::space_type, Program()> {
 
         id = qi::lexeme[qi::alpha >> *(qi::alnum)];
         num = qi::uint_;
+
         tipo_s =
             qi::eps             [phx::bind(&SType::pointer_indirections, _val) = 0] >>
             *qi::lit('*')       [phx::bind(&SType::pointer_indirections, _val) += 1] >>
             types_table         [phx::bind(&SType::type, _val) = _1];
 
-        //tipo = types_table | ('*' >> tipo) | ("array" >> seq);
-        //seq = +('[' >> num >> ']') >> "of" >> tipo;
+        tipo =
+            (
+                qi::lit('*')    [phx::bind(&Type::is_pointer, _val) = true]
+                | qi::eps       [phx::bind(&Type::is_pointer, _val) = false]
+            ) >> -(
+                "array" >
+                +(
+                    '[' >> num[phx::push_back(phx::bind(&Type::array_dimensions, _val), _1)] >> ']'
+                ) >> "of"
+            ) >> (types_table | tipo)[phx::bind(&Type::type, _val) = _1];
 
         // parameter list
-        //lista_p = *(id >> ':' >> tipo_s >> ';');
+        lista_p = *(id >> ':' > tipo_s >> ';'); // Adapted with fusion
 
         // variable declaration
-        //var_decl = id >> ':' >> tipo >> ';';
+        var_decl = id >> ':' > tipo >> ';'; // Adapted with fusion
+
         // procedure declaration
-        //proc_decl = "procedure" >> id >> '(' >> lista_p >> ')' >> ':' >> tipo_s >> lista_d >> "begin" >> lista_c >> "end" >> ';';
+        // Adapted with fusion
+        proc_decl = "procedure" > id > '(' > lista_p >> ')' > ':' > tipo_s >> lista_d >> "begin" > lista_c >> "end" > ';';
+
         // declaration list
-        //lista_d = *(var_decl | proc_decl);
+        lista_d =
+            *(
+                proc_decl       [phx::push_back(phx::bind(&DeclList::procedures, _val), _1)]
+                | var_decl      [phx::push_back(phx::bind(&DeclList::variables,  _val), _1)]
+            );
 
         //Rule AnyToken = lexeme[+qi::print] - (qi::lit("begin") | "end");
         //Rule Lixo = *AnyToken;
         //Rule Bloco = Lixo >> -("begin" >> Lixo >> "end") >> Lixo;
 
+        // code statements
         // TODO exception blocks
-        //lista_c = *(("begin" >> lista_c >> "end") | (qi::lexeme[+qi::print] - "end"));
+        lista_c = *(("begin" > lista_c >> "end") | (qi::lexeme[+qi::print] - "end"));
 
-        //p = "program" >> id >> lista_d >> "main" >> '(' >> lista_p >> ')' >> lista_d >> "begin" >> lista_c >> "end" >> qi::lit('.');
+        // program
+        // Adapted with fusion
+        p = "program" > id > lista_d > "main" > qi::lit('(') > lista_p > ')' > lista_d > "begin" > lista_c > "end" > qi::lit('.');
+
+        qi::on_error<qi::fail>(p, std::cerr
+            << phx::val("Error! Expecting ")
+            << qi::_4                               // what failed?
+            << phx::val(" here: \"")
+            << phx::construct<std::string>(qi::_3, qi::_2)   // iterators to error-pos, end
+            << phx::val("\"")
+            << std::endl);
     }
 
 #define RULE(type, name) qi::rule<Iterator, Skip, type> name
@@ -83,17 +142,58 @@ struct PascalGrammar : qi::grammar<Iterator, qi::space_type, Program()> {
 
 PascalGrammar<boost::spirit::istream_iterator> grammar;
 
+/*
+struct print_type : boost::static_visitor<std::string> {
+    std::string operator()(const TypeEnum& te) const
+    {
+        switch (te) {
+        case T_INT:       return "int";
+        case T_FLOAT:     return "float";
+        case T_CHAR:      return "char";
+        case T_BOOLEAN:   return "boolean";
+        case T_VOID:      return "void";
+        case T_EXCEPTION: return "exception";
+        default:          return "???";
+        }
+    }
+
+    std::string operator()(const Type& t) const
+    {
+        std::string s;
+
+        if (t.is_pointer)
+            s += "*";
+        for (auto i = std::begin(t.array_dimensions), end = std::end(t.array_dimensions); i != end; ++i) {
+            s += "[";
+            s += std::to_string((long long)*i);
+            s += "]";
+        }
+
+        s += boost::apply_visitor(print_type(), t.type);
+
+        return s;
+    }
+};
+*/
+
 void test_parse() {
-    //std::string line;
-    //std::getline(std::cin, line);
+    namespace spirit = boost::spirit;
 
-    //std::string val;
+    //Type val;
+    Program prog;
 
-    //auto b = std::begin(line);
-    //auto e = std::end(line);
+    std::cin.unsetf(std::ios::skipws);
+    spirit::istream_iterator b(std::cin);
+    spirit::istream_iterator e;
   
-    //bool r = qi::phrase_parse(b, e, grammar.id[&testf], qi::space, val);
-    //std::cout << val << std::endl;
+    bool r = qi::phrase_parse(b, e, grammar, qi::space, prog);
+
+    std::cerr << "aight." << std::endl;
+    std::cerr << (b == e) << ", " << r << std::endl;
+
+    //std::cerr << print_type()(val) << std::endl;
+
+    std::system("pause");
 }
 
 void parse_file(const std::string &filename) {

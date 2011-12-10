@@ -5,6 +5,8 @@
 
 int main()
 {
+    parse::test_parse();
+    /*
     StackFrame stackframe1;
     stackframe1.data.push_back(Entry(ENTRY_PARAMETER,1,"short var1"));
     stackframe1.data.push_back(Entry(ENTRY_PARAMETER,1,"short var2"));
@@ -29,6 +31,7 @@ int main()
     
     printTable(stackframe1);
     getchar();
+    */
 
     return 0;
 }
