@@ -31,22 +31,22 @@ struct TypesTable : qi::symbols<char, Types> {
     }
 } types_table;
 
-struct Grammar {
-    typedef std::string::iterator It;
+template <typename Iterator>
+struct PascalGrammar : qi::grammar<Iterator, qi::space_type, std::string()> {
     typedef qi::space_type Skip;
 
-    Grammar()
+    PascalGrammar() : PascalGrammar::base_type(p)
     {
         id = qi::lexeme[qi::alpha >> *(qi::alnum)];
         num = qi::uint_;
-        tipo_s = types_table | ('*' >> tipo_s);
+        tipo_s = *qi::lit('*') >> types_table;
 
         tipo = types_table | ('*' >> tipo) | ("array" >> seq) | "exception";
         seq = +('[' >> num >> ']') >> "of" >> tipo;
 
         lista_p = *(id >> ':' >> tipo_s >> ';');
 
-        lista_d = -((id >> ':' >> tipo >> ';' >> lista_d) | ("unit" >> id >> '(' >> lista_p >> ')' >> ':' >> tipo_s));
+        lista_d = -((id >> ':' >> tipo >> ';' >> lista_d) | ("procedure" >> id >> '(' >> lista_p >> ')' >> ':' >> tipo_s));
 
         //Rule AnyToken = lexeme[+qi::print] - (qi::lit("begin") | "end");
         //Rule Lixo = *AnyToken;
@@ -57,8 +57,8 @@ struct Grammar {
         p = "program" >> id >> lista_d >> "main" >> '(' >> lista_p >> ')' >> lista_d >> "begin" >> lista_c >> "end.";
     }
 
-#define RULE(type, name) qi::rule<It, Skip, type> name
-#define RULE_NT(name) qi::rule<It, Skip> name
+#define RULE(type, name) qi::rule<Iterator, Skip, type> name
+#define RULE_NT(name) qi::rule<Iterator, Skip> name
     RULE(std::string(), id);
     RULE(unsigned int(), num);
     RULE(Types(), tipo_s); // TODO descobrir que tipo é esse
@@ -73,11 +73,7 @@ struct Grammar {
 #undef RULE_NT
 };
 
-Grammar grammar;
-
-void testf() {
-    std::cout << "foo";
-}
+PascalGrammar<boost::spirit::istream_iterator> grammar;
 
 void test_parse() {
     //std::string line;
