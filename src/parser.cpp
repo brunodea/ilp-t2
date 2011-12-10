@@ -12,7 +12,7 @@ namespace parse {
 
 namespace qi = boost::spirit::qi;
 
-enum Types {
+enum TypeEnum {
     T_INT,
     T_FLOAT,
     T_CHAR,
@@ -20,7 +20,7 @@ enum Types {
     T_VOID
 };
 
-struct TypesTable : qi::symbols<char, Types> {
+struct TypesTable : qi::symbols<char, TypeEnum> {
     TypesTable()
     {
         add("int",     T_INT)
@@ -61,7 +61,7 @@ struct PascalGrammar : qi::grammar<Iterator, qi::space_type, std::string()> {
 #define RULE_NT(name) qi::rule<Iterator, Skip> name
     RULE(std::string(), id);
     RULE(unsigned int(), num);
-    RULE(Types(), tipo_s); // TODO descobrir que tipo é esse
+    RULE(TypeEnum(), tipo_s); // TODO descobrir que tipo é esse
     // TODO Especificar tipos para todos esses outros
     RULE(std::string(), tipo);
     RULE(std::string(), seq);
