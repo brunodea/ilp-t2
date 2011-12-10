@@ -15,11 +15,11 @@ Num     -> digito+
 
 ListaP  -> (Id ':' TipoS ';')*
 
-ListaD  -> (Id ':' Tipo ';' ListaD | 'unit' Id '(' ListaP ')' ':' TipoS)?
+ListaD  -> (Id ':' Tipo ';' ListaD | 'procedure' Id '(' ListaP ')' ':' TipoS)?
 
-TipoS   -> 'int' | 'float' | 'char' | 'boolean' | 'void' | '*' TipoS
-Tipo    -> 'int' | 'float' | 'char' | 'boolean' | 'void' | '*' Tipo | 'array' '[' Num ']' Seq | 'exception'
-Seq     -> '[' Num ']' Seq | 'of' Tipo
+TipoS   -> ('*')* ('int' | 'float' | 'char' | 'boolean' | 'void')
+Tipo    -> 'int' | 'float' | 'char' | 'boolean' | 'void' | '*' Tipo | 'array' Seq | 'exception'
+Seq     -> ('[' Num ']')+ 'of' Tipo
 
 ListaC  -> ε
 ListaC  -> 'raise' Id ';' ListaC
