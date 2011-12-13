@@ -269,21 +269,25 @@ std::vector<Entry> procedureToEntryList(const parse::ProcedureDecl& procedure)
     {
         entry_list.push_back(paramToEntry(*param_it));
     }
-    entry_list.insert(entry_list.end(), declListToEntryList(procedure.declarations));
+   
     return entry_list;
 }
 
 std::vector<Entry> declListToEntryList(const parse::DeclList& declarations)
 {
     std::vector<Entry> entry_list;
-    for(auto it = declarations.variables.begin(); it != declarations.variables.end(); it++)
+    for(auto it = declarations.variables.begin(); it != declarations.variables.end(); ++it)
     {
         entry_list.push_back(varToEntry(*it));
     }
 
-    for(auto it = declarations.procedures.begin(); it != declarations.procedures.end(); it++)
+    for(auto it = declarations.procedures.begin(); it != declarations.procedures.end(); ++it)
     {
-        entry_list.insert(entry_list.end(), procedureToEntryList(*it));
+        std::vector<Entry> *v = &procedureToEntryList(*it);
+        entry_list.insert(entry_list.end(), v->begin(), v->end());
+
+        v = &declListToEntryList((*it).declarations);
+        entry_list.insert(entry_list.end(), v->begin(), v->end());
     }
 
     return entry_list;
@@ -292,12 +296,16 @@ std::vector<Entry> declListToEntryList(const parse::DeclList& declarations)
 StackFrame generateStackFrame(const parse::Program& program)
 {
     StackFrame stackframe;
-    stackframe.data.insert(stackframe.data.end(), declListToEntryList(program.declarations));
-    stackframe.data.insert(stackframe.data.end(), declListToEntryList(program.main_decls));
+    
+    std::vector<Entry> *v = &declListToEntryList(program.declarations);
+    stackframe.data.insert(stackframe.data.end(), v->begin(), v->end());
 
-    for(auto it = program.main_params.begin(); it != program.main_params.end(); it++)
+    v = &declListToEntryList(program.main_decls);
+    stackframe.data.insert(stackframe.data.end(), v->begin(), v->end());
+
+    for(auto it = program.main_params.begin(); it != program.main_params.end(); ++it)
     {
-        stackframe.data.insert(stackframe.data.end(), paramToEntry(*it));
+        stackframe.data.push_back(paramToEntry(*it));
     }
 
     return stackframe;
