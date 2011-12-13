@@ -47,5 +47,6 @@ struct StackFrame {
     //temporarios, variaveis
     std::vector<ExceptionEntry> dataE;
 
-    std::vector<Entry> data; 
+    std::vector<Entry> data;
+    std::string name;
 };
