@@ -248,7 +248,12 @@ struct type_to_entry_visitor : boost::static_visitor<Entry>
     }
 };
 
-std::vector<Entry> declListToEntry(const parse::DeclList& declarations)
+int sizeOf(const parse::SType& stype)
+{
+    return (stype.pointer_indirections > 0) ? 4 : sizeOf(stype.type);
+}
+
+std::vector<Entry> declListToEntryList(const parse::DeclList& declarations)
 {
     std::vector<Entry> entry_list;
     for(auto& it = declarations.variables.begin(); it != declarations.variables.end(); it++)
