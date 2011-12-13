@@ -252,6 +252,11 @@ int sizeOf(const parse::SType& stype)
     return (stype.pointer_indirections > 0) ? 4 : sizeOf(stype.type);
 }
 
+Entry paramToEntry(const parse::Param& param)
+{
+    return Entry(ENTRY_PARAMETER, sizeOf(param.type), param.name);
+}
+
 std::vector<Entry> declListToEntryList(const parse::DeclList& declarations)
 {
     std::vector<Entry> entry_list;
@@ -271,8 +276,7 @@ std::vector<Entry> declListToEntryList(const parse::DeclList& declarations)
         //int size = sizeOf((*it).return_type);
         for(auto& param_it = (*it).param_list.begin(); param_it != (*it).param_list.end(); param_it++)
         {
-            int size = sizeOf((*param_it).type);
-            entry_list.push_back(Entry(ENTRY_PARAMETER,size,(*param_it).name));
+            entry_list.push_back(paramToEntry(*param_it));
         }
         entry_list.insert(entry_list.end(), declListToEntryList((*it).declarations));
     }
