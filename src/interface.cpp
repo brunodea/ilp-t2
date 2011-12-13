@@ -286,11 +286,11 @@ std::vector<Entry> declListToEntryList(const parse::DeclList& declarations)
 
     for(auto it = declarations.procedures.begin(); it != declarations.procedures.end(); ++it)
     {
-        std::vector<Entry> *v = &procedureToEntryList(*it);
-        entry_list.insert(entry_list.end(), v->begin(), v->end());
+        std::vector<Entry> v = procedureToEntryList(*it);
+        entry_list.insert(entry_list.end(), v.begin(), v.end());
 
-        v = &declListToEntryList((*it).declarations);
-        entry_list.insert(entry_list.end(), v->begin(), v->end());
+        v = declListToEntryList((*it).declarations);
+        entry_list.insert(entry_list.end(), v.begin(), v.end());
     }
 
     return entry_list;
