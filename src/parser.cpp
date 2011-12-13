@@ -208,4 +208,12 @@ void parse_file(const std::string &filename) {
     //spirit::qi::parse(begin, end,grammar.);
 }
 
+bool parse(Program* dest, std::istream& in) {
+    namespace spirit = boost::spirit;
+    in.unsetf(std::ios::skipws);
+    spirit::istream_iterator b(in);
+    spirit::istream_iterator e;
+    return qi::phrase_parse(b, e, grammar, qi::space, *dest);
+}
+
 }

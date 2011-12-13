@@ -6,6 +6,7 @@
 #include <iosfwd>
 #include <boost/variant.hpp>
 #include <boost/variant/recursive_wrapper.hpp>
+#include <exception>
 
 namespace parse {
 
@@ -68,9 +69,9 @@ struct Program {
     // TODO? command list
 };
 
-void test_parse();
 
-void parse(std::istream& in);
+void test_parse();
+bool parse(Program* dest, std::istream& in);
 void parse_file(const std::string &filename);
 
 }

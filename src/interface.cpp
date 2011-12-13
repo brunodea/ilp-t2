@@ -1,4 +1,5 @@
 #include "interface.hpp"
+#include <boost/variant.hpp>
 
 /*
 +-----------------+-----+ parameters
@@ -206,7 +207,72 @@ void printTable(StackFrame sFrame)
         << " +---------------------+-----+" << std::endl;
 }
 
+int sizeOf(parse::TypeEnum type)
+{
+    switch(type)
+    {
+        case parse::T_INT:       return 4;
+        case parse::T_FLOAT:     return 4;
+        case parse::T_CHAR:      return 1;
+        case parse::T_BOOLEAN:   return 1;
+        case parse::T_VOID:      return 0;
+        case parse::T_EXCEPTION: return 4;
+        default:          return  -1;
+    }
+}
+
+struct type_to_entry_visitor : boost::static_visitor<Entry>
+{
+    Entry operator()(const parse::TypeEnum& te) const
+    {
+        return Entry(ENTRY_VARIABLES,sizeOf(te),"none");
+    }
+
+    Entry operator()(const parse::Type& t) const
+    {
+        int size = 1;
+        for(auto& i = std::begin(t.array_dimensions), end = std::end(t.array_dimensions); i != end; ++i)
+        {
+            size *= *i;
+        }
+
+        if(!t.is_pointer)
+        {
+            Entry entry = boost::apply_visitor(type_to_entry_visitor(), t.type);
+            size *= std::get<1>(entry);
+        }
+        else
+            size *= 4;
+
+        return Entry(ENTRY_VARIABLES,size,"name");
+    }
+};
+
+std::vector<Entry> declListToEntry(const parse::DeclList& declarations)
+{
+    std::vector<Entry> entry_list;
+    for(auto& it = declarations.variables.begin(); it != declarations.variables.end(); it++)
+    {
+        parse::Type t = (*it).type;
+        std::string name = (*it).id;
+
+        Entry sizet = boost::apply_visitor(type_to_entry_visitor(), t.type);
+        int size = std::get<1>(sizet);
+
+        entry_list.push_back(Entry(ENTRY_VARIABLES,size,name));
+    }
+
+
+
+    return entry_list;
+}
+
 StackFrame generateStackFrame(const parse::Program& program)
 {
-    
+    StackFrame stackframe;
+
+
+
+
+    return stackframe;
 }
