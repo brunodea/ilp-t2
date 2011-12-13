@@ -92,6 +92,7 @@ void imprimeExceptions(std::vector<ExceptionEntry> dE, int* e)
 void printTable(StackFrame sFrame) 
 {
     int enderecoAtual = 0;
+    std::cout << "\n(" << sFrame.name << ")" << std::endl;
     std::cout <<"      +---------------------+-----+ parametros" << std::endl;
     for(int i = 0 ; i < (int)sFrame.data.size() ; i ++)
     {
