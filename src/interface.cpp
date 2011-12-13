@@ -259,7 +259,7 @@ Entry paramToEntry(const parse::Param& param)
 
 Entry varToEntry(const parse::VariableDecl& var)
 {
-    return Entry(ENTRY_VARIABLES,boost::apply_visitor(size_of_type(),var.type),var.id);
+    return Entry(ENTRY_VARIABLES,boost::apply_visitor(size_of_type(),var.type.type),var.id);
 }
 
 std::vector<Entry> procedureToEntryList(const parse::ProcedureDecl& procedure)
