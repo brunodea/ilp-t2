@@ -297,11 +297,11 @@ StackFrame generateStackFrame(const parse::Program& program)
 {
     StackFrame stackframe;
     
-    std::vector<Entry> *v = &declListToEntryList(program.declarations);
-    stackframe.data.insert(stackframe.data.end(), v->begin(), v->end());
+    std::vector<Entry> v = declListToEntryList(program.declarations);
+    stackframe.data.insert(stackframe.data.end(), v.begin(), v.end());
 
-    v = &declListToEntryList(program.main_decls);
-    stackframe.data.insert(stackframe.data.end(), v->begin(), v->end());
+    v = declListToEntryList(program.main_decls);
+    stackframe.data.insert(stackframe.data.end(), v.begin(), v.end());
 
     for(auto it = program.main_params.begin(); it != program.main_params.end(); ++it)
     {
