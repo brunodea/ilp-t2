@@ -266,18 +266,7 @@ Entry varToEntry(const parse::VariableDecl& var)
     return Entry(ENTRY_VARIABLES,boost::apply_visitor(size_of_type(),type),var.id);
 }
 
-std::vector<Entry> procedureToEntryList(const parse::ProcedureDecl& procedure)
-{
-    std::vector<Entry> entry_list;
-    for(auto param_it = procedure.param_list.begin(); param_it != procedure.param_list.end(); param_it++)
-    {
-        entry_list.push_back(paramToEntry(*param_it));
-    }
-   
-    return entry_list;
-}
-
-std::vector<Entry> declListToEntryList(const parse::DeclList& declarations)
+std::vector<Entry> varDeclListToEntryList(const parse::DeclList& declarations)
 {
     std::vector<Entry> entry_list;
     for(auto it = declarations.variables.begin(); it != declarations.variables.end(); ++it)
@@ -285,32 +274,44 @@ std::vector<Entry> declListToEntryList(const parse::DeclList& declarations)
         entry_list.push_back(varToEntry(*it));
     }
 
-    for(auto it = declarations.procedures.begin(); it != declarations.procedures.end(); ++it)
-    {
-        std::vector<Entry> v = procedureToEntryList(*it);
-        entry_list.insert(entry_list.end(), v.begin(), v.end());
-
-        v = declListToEntryList((*it).declarations);
-        entry_list.insert(entry_list.end(), v.begin(), v.end());
-    }
-
     return entry_list;
 }
 
-StackFrame generateStackFrame(const parse::Program& program)
+StackFrame procedureToStackFrame(const parse::ProcedureDecl& procedure)
 {
-    StackFrame stackframe;
-    
-    std::vector<Entry> v;// = declListToEntryList(program.declarations);
-    //stackframe.data.insert(stackframe.data.end(), v.begin(), v.end());
+    StackFrame sframe;
+    sframe.name = procedure.id;
+    for(auto param_it = procedure.param_list.begin(); param_it != procedure.param_list.end(); param_it++)
+    {
+        sframe.data.push_back(paramToEntry(*param_it));
+    }
+    std::vector<Entry> v = varDeclListToEntryList(procedure.declarations);
+    sframe.data.insert(sframe.data.end(), v.begin(), v.end());
+   
+    return sframe;
+}
+void procedureDeclList(const parse::DeclList& declarations)
+{
+    for(auto it = declarations.procedures.begin(); it != declarations.procedures.end(); ++it)
+    {
+        printTable(procedureToStackFrame(*it));
+        std::cout << std::endl;
+    }
+}
 
-    v = declListToEntryList(program.main_decls);
-    stackframe.data.insert(stackframe.data.end(), v.begin(), v.end());
+void printStackFrames(const parse::Program& program)
+{
+    std::cout << "Program " << program.id << std::endl;
 
+    StackFrame main;
+    main.name = "main";
     for(auto it = program.main_params.begin(); it != program.main_params.end(); ++it)
     {
-        stackframe.data.push_back(paramToEntry(*it));
+        main.data.push_back(paramToEntry(*it));
     }
+    std::vector<Entry> v = varDeclListToEntryList(program.main_decls);
+    main.data.insert(main.data.end(), v.begin(), v.end());
+    printTable(main);
 
-    return stackframe;
+    procedureDeclList(program.main_decls);
 }

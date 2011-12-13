@@ -23,5 +23,5 @@
 004Ch +-----------------+-----+
 */
 
-void printTable(StackFrame sFrame);
-StackFrame generateStackFrame(const parse::Program &program);
+//void printTable(StackFrame sFrame);
+void printStackFrames(const parse::Program &program);

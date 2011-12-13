@@ -10,8 +10,7 @@ void test()
     parse::Program prog;
     if(parse::parse(&prog,std::cin))
     {
-        StackFrame f(generateStackFrame(prog));
-        printTable(f);
+        printStackFrames(prog);
     }
     else
         std::cout << "ERRO\n";
