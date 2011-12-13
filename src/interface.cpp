@@ -231,7 +231,7 @@ struct size_of_type : boost::static_visitor<int>
     int operator()(const parse::Type& t) const
     {
         int size = 1;
-        for(auto& i = std::begin(t.array_dimensions), end = std::end(t.array_dimensions); i != end; ++i)
+        for(auto i = std::begin(t.array_dimensions), end = std::end(t.array_dimensions); i != end; ++i)
         {
             size *= *i;
         }
@@ -257,38 +257,48 @@ Entry paramToEntry(const parse::Param& param)
     return Entry(ENTRY_PARAMETER, sizeOf(param.type), param.name);
 }
 
+Entry varToEntry(const parse::VariableDecl& var)
+{
+    return Entry(ENTRY_VARIABLES,boost::apply_visitor(size_of_type(),var.type),var.id);
+}
+
+std::vector<Entry> procedureToEntryList(const parse::ProcedureDecl& procedure)
+{
+    std::vector<Entry> entry_list;
+    for(auto param_it = procedure.param_list.begin(); param_it != procedure.param_list.end(); param_it++)
+    {
+        entry_list.push_back(paramToEntry(*param_it));
+    }
+    entry_list.insert(entry_list.end(), declListToEntryList(procedure.declarations));
+    return entry_list;
+}
+
 std::vector<Entry> declListToEntryList(const parse::DeclList& declarations)
 {
     std::vector<Entry> entry_list;
-    for(auto& it = declarations.variables.begin(); it != declarations.variables.end(); it++)
+    for(auto it = declarations.variables.begin(); it != declarations.variables.end(); it++)
     {
-        parse::Type t = (*it).type;
-        std::string name = (*it).id;
-
-        int size = boost::apply_visitor(size_of_type(), t.type);
-
-        entry_list.push_back(Entry(ENTRY_VARIABLES,size,name));
+        entry_list.push_back(varToEntry(*it));
     }
 
-    for(auto& it = declarations.procedures.begin(); it != declarations.procedures.end(); it++)
+    for(auto it = declarations.procedures.begin(); it != declarations.procedures.end(); it++)
     {
-        //std::string name = (*it).id;
-        //int size = sizeOf((*it).return_type);
-        for(auto& param_it = (*it).param_list.begin(); param_it != (*it).param_list.end(); param_it++)
-        {
-            entry_list.push_back(paramToEntry(*param_it));
-        }
-        entry_list.insert(entry_list.end(), declListToEntryList((*it).declarations));
+        entry_list.insert(entry_list.end(), procedureToEntryList(*it));
     }
+
     return entry_list;
 }
 
 StackFrame generateStackFrame(const parse::Program& program)
 {
     StackFrame stackframe;
+    stackframe.data.insert(stackframe.data.end(), declListToEntryList(program.declarations));
+    stackframe.data.insert(stackframe.data.end(), declListToEntryList(program.main_decls));
 
-
-
+    for(auto it = program.main_params.begin(); it != program.main_params.end(); it++)
+    {
+        stackframe.data.insert(stackframe.data.end(), paramToEntry(*it));
+    }
 
     return stackframe;
 }
