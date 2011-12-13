@@ -3,14 +3,19 @@
 #include "parser.hpp"
 
 #include <iostream>
+#include <cstdlib>
 
 void test()
 {
     parse::Program prog;
     if(parse::parse(&prog,std::cin))
-        printTable(generateStackFrame(prog));
+    {
+        StackFrame f(generateStackFrame(prog));
+        printTable(f);
+    }
     else
         std::cout << "ERRO\n";
+    system("pause");
 }
 
 int main()
