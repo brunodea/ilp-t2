@@ -221,14 +221,14 @@ int sizeOf(parse::TypeEnum type)
     }
 }
 
-struct type_to_entry_visitor : boost::static_visitor<Entry>
+struct size_of_type : boost::static_visitor<int>
 {
-    Entry operator()(const parse::TypeEnum& te) const
+    int operator()(const parse::TypeEnum& te) const
     {
-        return Entry(ENTRY_VARIABLES,sizeOf(te),"none");
+        return sizeOf(te);
     }
 
-    Entry operator()(const parse::Type& t) const
+    int operator()(const parse::Type& t) const
     {
         int size = 1;
         for(auto& i = std::begin(t.array_dimensions), end = std::end(t.array_dimensions); i != end; ++i)
@@ -238,13 +238,12 @@ struct type_to_entry_visitor : boost::static_visitor<Entry>
 
         if(!t.is_pointer)
         {
-            Entry entry = boost::apply_visitor(type_to_entry_visitor(), t.type);
-            size *= std::get<1>(entry);
+            size *= boost::apply_visitor(size_of_type(), t.type);
         }
         else
             size *= 4;
 
-        return Entry(ENTRY_VARIABLES,size,"name");
+        return size;
     }
 };
 
@@ -261,8 +260,7 @@ std::vector<Entry> declListToEntryList(const parse::DeclList& declarations)
         parse::Type t = (*it).type;
         std::string name = (*it).id;
 
-        Entry sizet = boost::apply_visitor(type_to_entry_visitor(), t.type);
-        int size = std::get<1>(sizet);
+        int size = boost::apply_visitor(size_of_type(), t.type);
 
         entry_list.push_back(Entry(ENTRY_VARIABLES,size,name));
     }
