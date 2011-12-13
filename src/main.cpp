@@ -1,11 +1,22 @@
-
 #include "interface.hpp"
 #include "StackFrame.hpp"
 #include "parser.hpp"
 
+#include <iostream>
+
+void test()
+{
+    parse::Program prog;
+    if(parse::parse(&prog,std::cin))
+        printTable(generateStackFrame(prog));
+    else
+        std::cout << "ERRO\n";
+}
+
 int main()
 {
-    parse::test_parse();
+    test();
+    //parse::test_parse();
     /*
     StackFrame stackframe1;
     stackframe1.data.push_back(Entry(ENTRY_PARAMETER,1,"short var1"));
