@@ -267,8 +267,17 @@ std::vector<Entry> declListToEntryList(const parse::DeclList& declarations)
         entry_list.push_back(Entry(ENTRY_VARIABLES,size,name));
     }
 
-
-
+    for(auto& it = declarations.procedures.begin(); it != declarations.procedures.end(); it++)
+    {
+        //std::string name = (*it).id;
+        //int size = sizeOf((*it).return_type);
+        for(auto& param_it = (*it).param_list.begin(); param_it != (*it).param_list.end(); param_it++)
+        {
+            int size = sizeOf((*param_it).type);
+            entry_list.push_back(Entry(ENTRY_PARAMETER,size,(*param_it).name));
+        }
+        entry_list.insert(entry_list.end(), declListToEntryList((*it).declarations));
+    }
     return entry_list;
 }
 
