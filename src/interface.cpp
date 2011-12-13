@@ -242,7 +242,6 @@ struct size_of_type : boost::static_visitor<int>
         }
         else
             size *= 4;
-
         return size;
     }
 };
@@ -259,7 +258,11 @@ Entry paramToEntry(const parse::Param& param)
 
 Entry varToEntry(const parse::VariableDecl& var)
 {
-    return Entry(ENTRY_VARIABLES,boost::apply_visitor(size_of_type(),var.type.type),var.id);
+    boost::variant<
+        parse::TypeEnum,
+        boost::recursive_wrapper<parse::Type>
+    > type(var.type);
+    return Entry(ENTRY_VARIABLES,boost::apply_visitor(size_of_type(),type),var.id);
 }
 
 std::vector<Entry> procedureToEntryList(const parse::ProcedureDecl& procedure)
