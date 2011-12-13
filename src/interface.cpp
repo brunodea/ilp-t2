@@ -205,3 +205,8 @@ void printTable(StackFrame sFrame)
     std::cout << printHexa(enderecoAtual) 
         << " +---------------------+-----+" << std::endl;
 }
+
+StackFrame generateStackFrame(const parse::Program& program)
+{
+    
+}

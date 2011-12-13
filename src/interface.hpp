@@ -1,6 +1,7 @@
 #pragma once
 
 #include "StackFrame.hpp"
+#include "parser.hpp"
 #include <cstdio>
 #include <iostream>
 #include <string>
@@ -23,3 +24,4 @@
 */
 
 void printTable(StackFrame sFrame);
+StackFrame generateStackFrame(const parse::Program &program);
