@@ -46,17 +46,20 @@ std::string printNome(std::string s) // até 21 caracteres da pra imprimir
     return s;
 }
 
-void calculaPadding(int *enderecoAtual, int val)
+int calculaPadding(int enderecoAtual, size_t alignment)
 {
-    if(*enderecoAtual % val != 0)
-    {
-            int iPadding = 4 - *enderecoAtual % val;
-            std::cout << printHexa(*enderecoAtual)
-                <<" |   --- padding ---   |" 
-                << printHexa(iPadding)
-                << "|" << std::endl;
-            *enderecoAtual += iPadding;
-     }
+    int sobra = enderecoAtual % alignment;
+    if (sobra != 0) {
+        int tamanho = alignment - sobra;
+        std::cout << printHexa(enderecoAtual)
+            <<" |   --- padding ---   |"
+            << printHexa(tamanho)
+            << "|\n";
+
+        enderecoAtual += tamanho;
+    }
+
+    return enderecoAtual;
 }
 
 void imprimeExceptions(std::vector<ExceptionEntry> dE, int* e)
@@ -85,21 +88,22 @@ void printTable(StackFrame sFrame)
     std::cout <<"      +---------------------+-----+ parametros" << std::endl;
     for(int i = 0 ; i < (int)sFrame.data.size() ; i ++)
     {
-        if(std::get<0> (sFrame.data[i]) == ENTRY_PARAMETER)
+        if(sFrame.data[i].type == ENTRY_PARAMETER)
         {
-            int sizeDoItem = (int)std::get<1> (sFrame.data[i]);
+            size_t sizeDoItem = sFrame.data[i].size;
+            size_t alignDoItem = sFrame.data[i].alignment;
 
-            calculaPadding(&enderecoAtual,sizeDoItem);
+            enderecoAtual = calculaPadding(enderecoAtual, alignDoItem);
 
             std::cout << printHexa(enderecoAtual) << " |"
-                << printNome(std::get<2> (sFrame.data[i]))
+                << printNome(sFrame.data[i].name)
                 << "|" << printHexa(sizeDoItem)
                 << "|"<< std::endl;
             enderecoAtual += sizeDoItem;
         }
     }
 
-    calculaPadding(&enderecoAtual,4);
+    enderecoAtual = calculaPadding(enderecoAtual,4);
     std::cout <<"      +---------------------+-----+ excecoes" << std::endl;//IMPRIMIR AS EXCEÇÕES
 
     imprimeExceptions(sFrame.dataE, &enderecoAtual);
@@ -139,20 +143,21 @@ void printTable(StackFrame sFrame)
     std::cout <<"      +---------------------+-----+ variaveis" << std::endl;
     for(int i = 0 ; i < (int)sFrame.data.size() ; i ++)
     {
-        if(std::get<0> (sFrame.data[i]) == ENTRY_VARIABLES)
+        if(sFrame.data[i].type == ENTRY_VARIABLES)
         {
-            int sizeDoItem = (int)std::get<1> (sFrame.data[i]);
+            size_t sizeDoItem = sFrame.data[i].size;
+            size_t alignDoItem = sFrame.data[i].alignment;
 
-            calculaPadding(&enderecoAtual,sizeDoItem);
+            enderecoAtual = calculaPadding(enderecoAtual, alignDoItem);
 
             std::cout << printHexa(enderecoAtual) << " |"
-                << printNome(std::get<2> (sFrame.data[i]))
+                << printNome(sFrame.data[i].name)
                 << "|" << printHexa(sizeDoItem)
                 << "|"<< std::endl;
             enderecoAtual += sizeDoItem;
         }
     }
-    calculaPadding(&enderecoAtual,4);
+    enderecoAtual = calculaPadding(enderecoAtual,4);
 
     std::cout << printHexa(enderecoAtual) 
         << " +---------------------+-----+ estrutura do handler da excecao" << std::endl;
@@ -181,23 +186,24 @@ void printTable(StackFrame sFrame)
         std::cout << "      +---------------------+-----+"<< std::endl;
         for(int j = 0 ; j < (int)sFrame.dataE[i].m_Handler.m_Locals.size() ; j ++)
         {
-            int sizeDoItem = (int)std::get<1> (sFrame.dataE[i].m_Handler.m_Locals[j]);
+            size_t sizeDoItem = sFrame.dataE[i].m_Handler.m_Locals[j].size;
+            size_t alignDoItem = sFrame.dataE[i].m_Handler.m_Locals[j].alignment;
 
-            calculaPadding(&enderecoAtual,sizeDoItem);
+            enderecoAtual = calculaPadding(enderecoAtual, alignDoItem);
 
             std::cout << printHexa(enderecoAtual) << " |"
-                << printNome(std::get<2> (sFrame.dataE[i].m_Handler.m_Locals[j]))
+                << printNome(sFrame.dataE[i].m_Handler.m_Locals[j].name)
                 << "|" << printHexa(sizeDoItem)
                 << "|"<< std::endl;
             enderecoAtual += sizeDoItem;
         }
-        calculaPadding(&enderecoAtual,4);
+        enderecoAtual = calculaPadding(enderecoAtual,4);
     }
     std::cout << printHexa(enderecoAtual) 
         << " +---------------------+-----+" << std::endl;
 }
 
-int sizeOf(parse::TypeEnum type)
+int calcTypeSize(parse::TypeEnum type)
 {
     switch(type)
     {
@@ -211,48 +217,77 @@ int sizeOf(parse::TypeEnum type)
     }
 }
 
-struct size_of_type : boost::static_visitor<int>
+size_t calcTypeSize(const parse::SType& stype)
 {
-    int operator()(const parse::TypeEnum& te) const
-    {
-        return sizeOf(te);
-    }
+    if (stype.pointer_indirections > 0)
+        return 4;
+    else
+        return calcTypeSize(stype.type);
+}
 
-    int operator()(const parse::Type& t) const
+size_t calcTypeSize(const parse::Type& t)
+{
+    struct size_of_type : boost::static_visitor<size_t>
     {
-        int size = 1;
-        for(auto i = std::begin(t.array_dimensions), end = std::end(t.array_dimensions); i != end; ++i)
+        size_t operator()(const parse::TypeEnum& te) const
         {
-            size *= *i;
+            return calcTypeSize(te);
         }
 
-        if(!t.is_pointer)
+        size_t operator()(const parse::Type& t) const
         {
-            size *= boost::apply_visitor(size_of_type(), t.type);
+            return calcTypeSize(t);
         }
-        else
-            size *= 4;
-        return size;
-    }
-};
+    };
 
-int sizeOf(const parse::SType& stype)
+    size_t size = 1;
+
+    for(auto i = std::begin(t.array_dimensions), end = std::end(t.array_dimensions); i != end; ++i) {
+        size *= *i;
+    }
+
+    if(!t.is_pointer)
+        size *= boost::apply_visitor(size_of_type(), t.type);
+    else
+        size *= 4;
+
+    return size;
+}
+
+size_t calcTypeAlignment(const parse::SType& stype)
 {
-    return (stype.pointer_indirections > 0) ? 4 : sizeOf(stype.type);
+    return calcTypeSize(stype);
+}
+
+size_t calcTypeAlignment(const parse::Type& t)
+{
+    struct alignment_of_type : boost::static_visitor<size_t>
+    {
+        size_t operator()(const parse::TypeEnum& te) const
+        {
+            return calcTypeSize(te);
+        }
+
+        size_t operator()(const parse::Type& t) const
+        {
+            return calcTypeAlignment(t);
+        }
+    };
+
+    if(!t.is_pointer)
+        return boost::apply_visitor(alignment_of_type(), t.type);
+    else
+        return 4;
 }
 
 Entry paramToEntry(const parse::Param& param)
 {
-    return Entry(ENTRY_PARAMETER, sizeOf(param.type), param.name);
+    return Entry(ENTRY_PARAMETER, calcTypeSize(param.type), calcTypeAlignment(param.type), param.name);
 }
 
 Entry varToEntry(const parse::VariableDecl& var)
 {
-    boost::variant<
-        parse::TypeEnum,
-        boost::recursive_wrapper<parse::Type>
-    > type(var.type);
-    return Entry(ENTRY_VARIABLES,boost::apply_visitor(size_of_type(),type),var.id);
+    return Entry(ENTRY_VARIABLES, calcTypeSize(var.type), calcTypeAlignment(var.type), var.id);
 }
 
 std::vector<Entry> varDeclListToEntryList(const parse::DeclList& declarations)

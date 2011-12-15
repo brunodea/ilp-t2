@@ -11,7 +11,16 @@ enum EntryType  {
 };
 
 
-typedef std::tuple<EntryType, size_t, std::string> Entry;
+struct Entry {
+    EntryType type;
+    size_t size;
+    size_t alignment;
+    std::string name;
+
+    Entry(EntryType type, size_t size, size_t alignment, const std::string& name)
+        : type(type), size(size), alignment(alignment), name(name)
+    {}
+};
 
 typedef struct ExceptionHandler
 {
