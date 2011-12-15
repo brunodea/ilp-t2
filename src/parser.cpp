@@ -66,34 +66,36 @@ struct PascalGrammar : qi::grammar<Iterator, qi::space_type, Program()> {
         using qi::_val;
         using qi::_1;
 
-        id = qi::lexeme[qi::alpha >> *(qi::alnum)];
+        id = qi::lexeme[qi::alpha > *(qi::alnum)];
         num = qi::uint_;
 
         tipo_s =
-            qi::eps             [phx::bind(&SType::pointer_indirections, _val) = 0] >>
-            *qi::lit('*')       [phx::bind(&SType::pointer_indirections, _val) += 1] >>
+            qi::eps             [phx::bind(&SType::pointer_indirections, _val) = 0] >
+            *qi::lit('*')       [phx::bind(&SType::pointer_indirections, _val) += 1] >
             types_table         [phx::bind(&SType::type, _val) = _1];
 
         tipo =
             (
                 qi::lit('*')    [phx::bind(&Type::is_pointer, _val) = true]
                 | qi::eps       [phx::bind(&Type::is_pointer, _val) = false]
-            ) >> -(
+            ) > -(
                 "array" >
                 +(
-                    '[' >> num[phx::push_back(phx::bind(&Type::array_dimensions, _val), _1)] >> ']'
-                ) >> "of"
-            ) >> (types_table | tipo)[phx::bind(&Type::type, _val) = _1];
+                    '[' > num[phx::push_back(phx::bind(&Type::array_dimensions, _val), _1)] > ']'
+                ) > "of"
+            ) > (
+                types_table | (&(qi::lit('*') | qi::lit("array")) > tipo)
+            )                   [phx::bind(&Type::type, _val) = _1];
 
         // parameter list
-        lista_p = *(id >> ':' > tipo_s >> ';'); // Adapted with fusion
+        lista_p = *(id >> ':' > tipo_s > ';'); // Adapted with fusion
 
         // variable declaration
-        var_decl = id >> ':' > tipo >> ';'; // Adapted with fusion
+        var_decl = id >> ':' > tipo > ';'; // Adapted with fusion
 
         // procedure declaration
         // Adapted with fusion
-        proc_decl = "procedure" > id > '(' > lista_p >> ')' > ':' > tipo_s >> lista_d >> "begin" > lista_c >> "end" > ';';
+        proc_decl = "procedure" > id > '(' > lista_p > ')' > ':' > tipo_s > lista_d > "begin" > lista_c > "end" > ';';
 
         // declaration list
         lista_d =
@@ -108,7 +110,7 @@ struct PascalGrammar : qi::grammar<Iterator, qi::space_type, Program()> {
 
         // code statements
         // TODO exception blocks
-        lista_c = *(("begin" > lista_c >> "end") | (qi::lexeme[+qi::print] - "end"));
+        lista_c = *(("begin" > lista_c > "end") | (qi::lexeme[+qi::print] - "end"));
 
         // program
         // Adapted with fusion
