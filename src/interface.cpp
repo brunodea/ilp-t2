@@ -21,23 +21,12 @@
 
 std::string printHexa(int n)
 {
-    std::string s = "";
+    if (n < 0 || n > 0xFFFF)
+        return "    h";
+
     char c[6]; //como tem 4 numeros + h + \0
-    if(n < 16)
-    {
-        sprintf(c,"000%xh",n);
-        s.append(c);
-    }else if(n < 256){
-        sprintf(c,"00%xh",n);
-        s.append(c);
-    }else if(n < 4096){
-        sprintf(c,"0%xh",n);
-        s.append(c);
-    }else{
-        sprintf(c,"%xh",n);
-        s.append(c);
-    }
-    return s;
+    sprintf(c,"%04Xh", n);
+    return std::string(c);
 }
 
 std::string printNome(std::string s) // até 21 caracteres da pra imprimir
